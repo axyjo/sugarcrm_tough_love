@@ -1,5 +1,11 @@
 <?php
 
+function log_write($level, $message)
+{
+    echo strtoupper($level) . ": " . $message . "</br>";
+}
+
+// PHP version check
 log_write('info', 'Checking PHP version. Sugar 7 requires at least PHP 5.3.0');
 if (version_compare(PHP_VERSION, '5.3.0') < 0) {
     log_write('critical', 'Upgrade your PHP installation. You\'re currently running PHP '.PHP_VERSION);
@@ -11,6 +17,7 @@ if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
     log_write('warn', 'However, SugarCRM does not support PHP 5.4.0 or later releases.');
 }
 
+// File hash validity
 log_write('info', 'Checking for presence of files.md5 file.');
 if (file_exists("files.md5")) {
     include 'files.md5';
@@ -30,7 +37,11 @@ if (file_exists("files.md5")) {
     log_write('error', 'Could not check for file validity: files.md5 is missing.');
 }
 
-function log_write($level, $message)
-{
-    echo strtoupper($level) . ": " . $message . "</br>";
-}
+// TODO: Custom themes
+// TODO: Custom modules that do "weird things"
+// TODO: Custom views
+// TODO: Custom entrypoints
+// TODO: Checks for echo/die/exit/print/var_dump/print_r/ob*
+// TODO: JQuery not owned by Sugar.
+// TODO: Custom JS libraries.
+// TODO: Log4PHP
