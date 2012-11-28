@@ -1,5 +1,16 @@
 <?php
 
+log_write('info', 'Checking PHP version. Sugar 7 requires at least PHP 5.3.0');
+if (version_compare(PHP_VERSION, '5.3.0') < 0) {
+    log_write('critical', 'Upgrade your PHP installation. You\'re currently running PHP '.PHP_VERSION);
+} else {
+    log_write('info', 'Your version of PHP (' . PHP_VERSION .  ') is fine.');
+}
+
+if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+    log_write('warn', 'However, SugarCRM does not support PHP 5.4.0 or later releases.');
+}
+
 log_write('info', 'Checking for presence of files.md5 file.');
 if (file_exists("files.md5")) {
     include 'files.md5';
