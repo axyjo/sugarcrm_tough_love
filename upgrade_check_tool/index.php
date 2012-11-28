@@ -2,7 +2,7 @@
 
 function log_write($level, $message)
 {
-    echo strtoupper($level) . ": " . $message . "</br>";
+    echo strtoupper($level) . ": " . $message . "<br />";
 }
 
 // PHP version check
@@ -19,7 +19,8 @@ if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
 
 // File hash validity
 log_write('info', 'Checking for presence of files.md5 file.');
-if (file_exists("files.md5")) {
+$file_hashes_exist = file_exists("files.md5");
+if ($file_hashes_exist) {
     include 'files.md5';
     $bad_files = array();
     foreach ($md5_string as $file => $hash) {
@@ -37,7 +38,44 @@ if (file_exists("files.md5")) {
     log_write('error', 'Could not check for file validity: files.md5 is missing.');
 }
 
-// TODO: Custom themes
+// Custom themes
+if ($file_hashes_exist) {
+    $theme_dirs = array_merge(glob('themes/*'), glob('custom/themes/*'));
+    $file_names = array_keys($md5_string);
+
+    // First we get the valid theme files.
+    $valid_files = array();
+    foreach ($file_names as $file) {
+        $ret = strpos($file, './themes/');
+        if ($ret === FALSE) {
+            $ret = strpos($file, './custom/themes/');
+        }
+        if ($ret !== FALSE) {
+            $valid_files[] = $file;
+        }
+    }
+
+    // Then we filter out the directories.
+    $valid_dirs = array();
+    foreach ($valid_files as $val) {
+        $str = '/themes/';
+        $start = strpos($val, $str) + strlen($str);
+        $length = strpos($val, '/', $start);
+        // The 2s get rid of the starting dot and slash.
+        $ret = substr($val, 2, $length - 2);
+        $valid_dirs[] = $ret;
+    }
+    $valid_dirs = array_unique($valid_dirs);
+
+    foreach ($theme_dirs as $dir) {
+        if (!in_array($dir, $valid_dirs)) {
+            log_write('warn', 'Theme ' . $dir . ' is a 3rd party theme.');
+        }
+    }
+} else {
+    log_write('error', 'Cannot run custom theme check as files.md5 is missing.');
+}
+
 // TODO: Custom modules that do "weird things"
 // TODO: Custom views
 // TODO: Custom entrypoints
@@ -45,3 +83,5 @@ if (file_exists("files.md5")) {
 // TODO: JQuery not owned by Sugar.
 // TODO: Custom JS libraries.
 // TODO: Log4PHP
+// TODO: Warn on XTemplate usage.
+// TODO: Warn on {php} inside Smarty.
