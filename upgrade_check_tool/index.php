@@ -5,6 +5,17 @@ function log_write($level, $message)
     echo strtoupper($level) . ": " . $message . "<br />";
 }
 
+function glob_recursive($pattern, $flags = 0)
+{
+    $files = glob($pattern, $flags);
+
+    foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+        $files = array_merge($files, glob_recursive($dir.'/'.basename($pattern), $flags));
+    }
+
+    return $files;
+}
+
 // PHP version check
 log_write('info', 'Checking PHP version. Sugar 7 requires at least PHP 5.3.0');
 if (version_compare(PHP_VERSION, '5.3.0') < 0) {
@@ -80,4 +91,11 @@ if ($file_hashes_exist) {
 // TODO: Custom JS libraries.
 // TODO: Log4PHP
 // TODO: Warn on XTemplate usage.
-// TODO: Warn on {php} inside Smarty.
+
+// Warn on {php} inside Smarty.
+foreach (glob_recursive("*.tpl") as $tplfile) {
+    $contents = file_get_contents($tplfile);
+    if (strpos($contents, "{php}") !== FALSE) {
+        log_write('error', 'Template file ' . $tplfile . ' uses Smarty 2 PHP tags.');
+    }
+}
