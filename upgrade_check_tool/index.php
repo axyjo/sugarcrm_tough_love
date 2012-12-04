@@ -86,11 +86,39 @@ if ($file_hashes_exist) {
 // TODO: Custom modules that do "weird things"
 // TODO: Custom views
 // TODO: Custom entrypoints
-// TODO: Checks for echo/die/exit/print/var_dump/print_r/ob*
+
+// Checks for echo/die/exit/print/var_dump/print_r/ob*
+// Warn on XTemplate usage.
+foreach (glob_recursive("*.php") as $phpfile) {
+    $contents = file_get_contents($phpfile);
+    $tokens = token_get_all($contents);
+    foreach ($tokens as $token) {
+        if (is_array($token)) {
+            if ($token[0] == T_INLINE_HTML) {
+                log_write('warn', 'Inline HTML found in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_ECHO) {
+                log_write('error', 'Found "echo" in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_PRINT) {
+                log_write('error', 'Found "print" in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_EXIT) {
+                log_write('error', 'Found "die/exit" in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_STRING && $token[1] == 'print_r') {
+                log_write('error', 'Found "print_r" in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_STRING && $token[1] == 'var_dump') {
+                log_write('error', 'Found "var_dump" in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_STRING && strpos($token[1], 'ob_') === 0) {
+                log_write('error', 'Found output buffering (' . $token[1] . ') in ' . $phpfile . ' on line '. $token[2]);
+            } elseif ($token[0] == T_STRING && $token[1] == 'XTemplate') {
+                log_write('error', 'Found XTemplate usage in ' . $phpfile . ' on line '. $token[2]);
+            }
+        }
+    }
+    ob_flush();
+}
+
 // TODO: JQuery not owned by Sugar.
 // TODO: Custom JS libraries.
 // TODO: Log4PHP
-// TODO: Warn on XTemplate usage.
 
 // Warn on {php} inside Smarty.
 foreach (glob_recursive("*.tpl") as $tplfile) {
