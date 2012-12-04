@@ -13,10 +13,6 @@ if (version_compare(PHP_VERSION, '5.3.0') < 0) {
     log_write('info', 'Your version of PHP (' . PHP_VERSION .  ') is fine.');
 }
 
-if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-    log_write('warn', 'However, SugarCRM does not support PHP 5.4.0 or later releases.');
-}
-
 // File hash validity
 log_write('info', 'Checking for presence of files.md5 file.');
 $file_hashes_exist = file_exists("files.md5");
