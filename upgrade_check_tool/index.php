@@ -7,10 +7,15 @@ function log_write($level, $message)
 
 function glob_recursive($pattern, $flags = 0)
 {
+    $whitelist = array(
+        './cache',
+    );
     $files = glob($pattern, $flags);
 
     foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-        $files = array_merge($files, glob_recursive($dir.'/'.basename($pattern), $flags));
+        if (!in_array($dir, $whitelist)) {
+            $files = array_merge($files, glob_recursive($dir.'/'.basename($pattern), $flags));
+        }
     }
 
     return $files;
