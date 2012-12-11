@@ -151,8 +151,14 @@ if (is_dir('log4php')) {
 $tpl_files = filterSugarOwned(glob_recursive("*.tpl"), $bad_files);
 foreach ($tpl_files as $tplfile) {
     $contents = file_get_contents($tplfile);
-    if (strpos($contents, "{php}") !== FALSE) {
+    if (strpos($contents, "{php}") !== false) {
         log_write('error', 'Template file ' . $tplfile . ' uses Smarty 2 PHP tags.');
+    }
+    if (strpos($contents, "customCode") !== false) {
+        log_write('warn', 'Template file ' . $tplfile . ' uses custom code.');
+    }
+    if (strpos($contents, "if $") !== false || strpos($contents, "if !$") !== false) {
+        log_write('info', 'Template file ' . $tplfile . ' checks for variable truthiness directly. Consider using empty() to avoid notices.');
     }
 }
 
