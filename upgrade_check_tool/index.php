@@ -23,9 +23,9 @@ function glob_recursive($pattern, $flags = 0)
 
 function filterSugarOwned($files, $bad_files = array())
 {
+    $sugar_files = array();
     if (!isset($_GET['include_sugar_owned'])) {
         include 'files.md5';
-        $sugar_files = array();
         foreach ($md5_string as $f => $hash) {
             if (strpos($f, '/', 2) === false) {
                 $sugar_files[] = substr($f, 2);
