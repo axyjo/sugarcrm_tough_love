@@ -164,8 +164,16 @@ foreach ($php_files as $phpfile) {
     ob_flush();
 }
 
-// TODO: JQuery not owned by Sugar.
-// TODO: Custom JS libraries.
+// JQuery not owned by Sugar.
+// Custom JS libraries.
+$js_files = filterSugarOwned(globRecursive("*.js"), $bad_files);
+foreach ($js_files as $js_file) {
+    if (strpos(strtolower($js_file), 'jquery')) {
+        logWrite('error', 'Custom jQuery code found in ' . $js_file . '.');
+    } else {
+        logWrite('warn', 'Custom javascript code found in ' . $js_file . '.');
+    }
+}
 
 // Log4PHP
 if (is_dir('log4php')) {
