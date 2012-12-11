@@ -109,7 +109,14 @@ foreach ($theme_dirs as $dir) {
     }
 }
 
-// TODO: Modules that have customCode in vardefs.
+// Modules that have customCode in vardefs.
+$def_files = filterSugarOwned(globRecursive("*defs.php"), $bad_files);
+foreach ($def_files as $file) {
+    $contents = file_get_contents($file);
+    if (strpos($contents, 'customCode') !== false) {
+        logWrite('warn', 'Custom code found in vardef ' . $file . '.');
+    }
+}
 
 // Custom views
 $view_files = filterSugarOwned(globRecursive("view.*.php"), $bad_files);
