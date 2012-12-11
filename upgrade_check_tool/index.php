@@ -110,7 +110,12 @@ foreach ($theme_dirs as $dir) {
 }
 
 // TODO: Modules that have customCode in vardefs.
-// TODO: Custom views
+
+// Custom views
+$view_files = filterSugarOwned(globRecursive("view.*.php"), $bad_files);
+foreach ($view_files as $file) {
+    logWrite('warn', 'Custom view file found at ' . $file . '.');
+}
 
 // Custom entrypoints
 $php_files = filterSugarOwned(globRecursive("*.php"), $bad_files, true);
