@@ -141,7 +141,11 @@ foreach ($php_files as $phpfile) {
 
 // TODO: JQuery not owned by Sugar.
 // TODO: Custom JS libraries.
-// TODO: Log4PHP
+
+// Log4PHP
+if (is_dir('log4php')) {
+    log_write('warn', 'Log4PHP directory still exists.');
+}
 
 // Warn on {php} inside Smarty.
 $tpl_files = filterSugarOwned(glob_recursive("*.tpl"), $bad_files);
