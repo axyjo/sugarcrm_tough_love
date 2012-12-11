@@ -207,10 +207,21 @@ foreach ($tpl_files as $tplfile) {
     }
 }
 
+// XTemplate files
 $xtpl_files = filterSugarOwned(globRecursive("*.html"), $bad_files);
 foreach ($xtpl_files as $xtplfile) {
     $contents = file_get_contents($xtplfile);
     if (strpos($contents, "BEGIN:") !== false) {
         logWrite('error', 'Template file ' . $xtplfile . ' is an XTemplate file.');
+    }
+}
+
+// XTemplate references from studio defs.
+// Custom views
+$studio_files = filterSugarOwned(globRecursive("studio.php"), $bad_files);
+foreach ($studio_files as $file) {
+    $contents = file_get_contents($file);
+    if (strpos($contents, 'xtpl') !== false) {
+        logWrite('warn', 'Studio definition references XTemplate at ' . $file . '.');
     }
 }
