@@ -28,10 +28,10 @@ function glob_recursive($pattern, $flags = 0)
     return $files;
 }
 
-function filterSugarOwned($files, $bad_files = array())
+function filterSugarOwned($files, $bad_files = array(), $override_get = false)
 {
     $sugar_files = array();
-    if (!isset($_GET['include_sugar_owned'])) {
+    if (!isset($_GET['include_sugar_owned']) || $override_get) {
         include 'files.md5';
         foreach ($md5_string as $f => $hash) {
             if (strpos($f, '/', 2) === false) {
@@ -111,7 +111,28 @@ foreach ($theme_dirs as $dir) {
 
 // TODO: Custom modules that do "weird things"
 // TODO: Custom views
-// TODO: Custom entrypoints
+
+// Custom entrypoints
+$php_files = filterSugarOwned(glob_recursive("*.php"), $bad_files, true);
+foreach ($php_files as $phpfile) {
+    $contents = file_get_contents($phpfile);
+    $tokens = token_get_all($contents);
+    $last_token = null;
+    $entrypointStrings = array('"sugarEntry"', "'sugarEntry");
+    foreach ($tokens as $token) {
+        if (is_array($token) && $token[0] != T_WHITESPACE) {
+            if ($last_token[0] == T_STRING && $last_token[1] == 'define') {
+                if ($token[0] == T_CONSTANT_ENCAPSED_STRING) {
+                    // Encapsed string returns the surrounding quotes as well.
+                    if (in_array($token[1], $entrypointStrings)) {
+                        log_write('warn', 'Custom entrypoint found in ' . $phpfile . '.');
+                    }
+                }
+            }
+            $last_token = $token;
+        }
+    }
+}
 
 // Checks for echo/die/exit/print/var_dump/print_r/ob*
 // Warn on XTemplate usage.
