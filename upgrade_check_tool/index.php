@@ -151,3 +151,11 @@ foreach ($tpl_files as $tplfile) {
         log_write('error', 'Template file ' . $tplfile . ' uses Smarty 2 PHP tags.');
     }
 }
+
+$xtpl_files = filterSugarOwned(glob_recursive("*.html"), $bad_files);
+foreach ($xtpl_files as $xtplfile) {
+    $contents = file_get_contents($xtplfile);
+    if (strpos($contents, "BEGIN:") !== FALSE) {
+        log_write('error', 'Template file ' . $xtplfile . ' is an XTemplate file.');
+    }
+}
