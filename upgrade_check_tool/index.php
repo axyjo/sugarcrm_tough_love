@@ -21,6 +21,23 @@ function glob_recursive($pattern, $flags = 0)
     return $files;
 }
 
+function filterSugarOwned($files, $bad_files = array())
+{
+    if (!isset($_GET['include_sugar_owned'])) {
+        include 'files.md5';
+        $sugar_files = array();
+        foreach ($md5_string as $f => $hash) {
+            if (strpos($f, '/', 2) === false) {
+                $sugar_files[] = substr($f, 2);
+            } else {
+                $sugar_files[] = $f;
+            }
+        }
+    }
+
+    return array_merge(array_diff($files, $sugar_files), array_intersect($files, $bad_files));
+}
+
 // PHP version check
 log_write('info', 'Checking PHP version. Sugar 7 requires at least PHP 5.3.0');
 if (version_compare(PHP_VERSION, '5.3.0') < 0) {
@@ -59,10 +76,10 @@ if ($file_hashes_exist) {
     $valid_files = array();
     foreach ($file_names as $file) {
         $ret = strpos($file, './themes/');
-        if ($ret === FALSE) {
+        if ($ret === false) {
             $ret = strpos($file, './custom/themes/');
         }
-        if ($ret !== FALSE) {
+        if ($ret !== false) {
             $valid_files[] = $file;
         }
     }
@@ -94,7 +111,8 @@ if ($file_hashes_exist) {
 
 // Checks for echo/die/exit/print/var_dump/print_r/ob*
 // Warn on XTemplate usage.
-foreach (glob_recursive("*.php") as $phpfile) {
+$php_files = filterSugarOwned(glob_recursive("*.php"), $bad_files);
+foreach ($php_files as $phpfile) {
     $contents = file_get_contents($phpfile);
     $tokens = token_get_all($contents);
     foreach ($tokens as $token) {
@@ -126,7 +144,8 @@ foreach (glob_recursive("*.php") as $phpfile) {
 // TODO: Log4PHP
 
 // Warn on {php} inside Smarty.
-foreach (glob_recursive("*.tpl") as $tplfile) {
+$tpl_files = filterSugarOwned(glob_recursive("*.tpl"), $bad_files);
+foreach ($tpl_files as $tplfile) {
     $contents = file_get_contents($tplfile);
     if (strpos($contents, "{php}") !== FALSE) {
         log_write('error', 'Template file ' . $tplfile . ' uses Smarty 2 PHP tags.');
