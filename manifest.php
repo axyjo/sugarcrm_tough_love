@@ -9,7 +9,7 @@ $manifest = array (
     'icon' => '',
     'is_uninstallable' => true,
     'name' => 'Tough Love',
-    'published_date' => '2012-01-20 10:05:57',
+    'published_date' => '2013-01-30 11:28:57',
     'type' => 'module',
     'version' => '1.0',
 );
