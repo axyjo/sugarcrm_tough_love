@@ -12,34 +12,16 @@ function logWrite($level, $message)
     echo strtoupper($level) . ": " . $message . "<br />";
 }
 
-function matchString($pattern, $str)
-{
-  $pattern = preg_replace('/([^*])/e', 'preg_quote("$1", "/")', $pattern);
-  $pattern = str_replace('*', '.*', $pattern);
-  return preg_match('/^' . $pattern . '$/i', $str);
-}
-
 function globRecursive($pattern, $flags = 0)
 {
     $whitelist = array(
         './cache',
     );
+    $files = glob($pattern, $flags);
 
-    // Can't use GlobIterator -- only supported in PHP 5.3+
-    $files = array();
-    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("."));
-    foreach ($iterator as $item) {
-        if ($item->isFile()) {
-            $flag = true;
-            foreach ($whitelist as $w) {
-                if (0 === strpos($item->getPath(), $w)) {
-                    $flag = false;
-                }
-            }
-
-            if ($flag && matchString($pattern, $item->getFilename())) {
-                $files[] = $item->getPath() . '/' . $item->getFilename();
-            }
+    foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+        if (!in_array($dir, $whitelist)) {
+            $files = array_merge($files, globRecursive($dir.'/'.basename($pattern), $flags));
         }
     }
 
