@@ -20,5 +20,9 @@ $installdefs = array(
             'from' => '<basepath>/upgrade_check_tool',
             'to' => 'modules/upgrade_check_tool',
         ),
+        array(
+            'from' => '<basepath>/admin',
+            'to' => 'custom/Extension/modules/Administration/Ext/Administration'
+        ),
     ),
 );
