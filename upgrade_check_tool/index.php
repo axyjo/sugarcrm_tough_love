@@ -1,5 +1,5 @@
 <?php
-
+$start_time = microtime(true);
 // Sanity checks.
 if (!extension_loaded('tokenizer')) {
     echo 'Tokenizer extension is not loaded. Please enable the extension and try again.';
@@ -44,6 +44,9 @@ function filterSugarOwned($files, $bad_files = array(), $override_get = false)
 
     return array_merge(array_diff($files, $sugar_files), array_intersect($files, $bad_files));
 }
+
+logWrite('info', 'This check is aggressive. Please do not be alarmed by any notices.');
+logWrite('info', 'Starting scan.');
 
 // PHP version check
 logWrite('info', 'Checking PHP version. Sugar 7 requires at least PHP 5.3.0');
@@ -225,3 +228,7 @@ foreach ($studio_files as $file) {
         logWrite('warn', 'Studio definition references XTemplate at ' . $file . '.');
     }
 }
+
+$time = microtime(true) - $start_time;
+logWrite('info', 'Scanning completed. Check took ' . number_format($time, 3) . 's');
+logWrite('info', 'Please email this report to <a href="mailto:sugar7ready@sugarcrm.com">sugar7ready@sugarcrm.com</a>.');
